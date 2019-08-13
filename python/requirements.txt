@@ -1,0 +1,6 @@
+nltk
+numpy
+networkx
+
+spacy==2.1.3
+bert-extractive-summarizer

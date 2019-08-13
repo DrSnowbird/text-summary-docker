@@ -1,0 +1,14 @@
+version: '3' 
+services:
+  text-summary-docker:
+    image: openkbs/text-summary-docker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: text-summary-docker
+    env_file:
+      - ./docker.env
+    volumes:
+      - ./data:/home/developer/data
+      - ./python:/home/developer/python
+

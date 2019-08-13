@@ -1,0 +1,18 @@
+# NLP Processing
+nltk
+networkx
+gensim
+
+# NLP Toolkit
+nltk
+tqdm
+spacy
+
+# ML Packages
+keras
+
+# additional
+Flask
+gensim
+langdetect
+
