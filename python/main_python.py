@@ -8,12 +8,20 @@ parser = ArgumentParser()
 parser.add_argument("-d", "--data", dest="dataFile", help="read data from", metavar="FILE")
 
 args = parser.parse_args()
-#print("data file=" + args.dataFile)
-
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> data file=" + args.dataFile)
 import numpy as np
 import networkx as nx
 import nltk
-nltk.download('stopwords')
+
+# To avoid corporate proxy issue, let's preload package for NLTK using Dockerfile
+#
+# How to manually download (pre-load) a nltk corpus, e.g., stopwords?
+# 1. Go to http://www.nltk.org/nltk_data/ and download whichever data file you want
+# 2. Now in a Python shell check the value of `nltk.data.path`
+# 3. Choose one of the path that exists on your machine, and unzip the data files into the `corpora` subdirectory inside.
+# 4. Now you can import the data `from nltk.corpus import stopwords`
+
+# nltk.download('stopwords')
 
 from nltk.corpus import stopwords
 from nltk.cluster.util import cosine_distance
@@ -96,7 +104,8 @@ def generate_summary(file_name, top_n=5):
         summarize_text.append(" ".join(ranked_sentence[i][1]))
 
     # Step 5 - Offcourse, output the summarize texr
-    print("Summarize Text: \n", ". ".join(summarize_text))
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Summarize Text: ")
+    print(summarize_text)
 
 
 # let's begin

@@ -9,17 +9,32 @@
 * Spark 2.4.3 + Hadoop 2.7
 * Other tools: git wget unzip vim python python-setuptools python-dev python-numpy 
 
-# Run
-Two ways to run:
+# Prepare Source Data File
+* Each data file needs to be only one line. If multiple lines, please use the bin/strip-newline.sh utility to join all sentences into one line.
+* Then, put the data file to current directory's ./data foler.
+* The summarizer main program will scan all the data files in ./data folder and generate summary output to $HOME/data-docker/text-summary-docker/workspace/ folder.
+
+# Run (Interactive Mode)
 ```
-./run.sh
+./run.sh /bin/bash
 ```
 or
 ```
-docker pull openkbs/tensorflow-python3-jupyter
-docker-compose up -d
+docker-compose up
 ```
 
+### Once you are inside the container, you can try
+```
+cd $HOME
+python3 python/main_python.py -d data/msft.txt
+python3 python/main_python.py -d data/fb.txt 
+```
+# Run (Batch Mode) - as command line
+```
+./run.sh python3 /home/developer/python/main_python.py -d /home/developer/data/msft.txt
+or
+docker run --rm -it --name=text-summary-docker openkbs/text-summary-docker python3 /home/developer/python/main_python.py -d /home/developer/data/msft.txt
+```
 # See Also - docker-based IDE
 * [openkbs/docker-spark-bde2020-zeppelin](https://cloud.docker.com/u/openkbs/repository/docker/openkbs/docker-spark-bde2020-zeppelin): Spark (Scala/Java) Cluster with Spark ML/MLlib + Hadoop (HDFS)
 * [openkbs/atom-docker](https://hub.docker.com/r/openkbs/atom-docker/)

@@ -539,7 +539,7 @@ echo "  ./commit.sh: to push the container image to docker hub"
 echo "--------------------------------------------------------"
 
 #################################
-## ---- Setup X11 Display -_-- ##
+## ---- Setup X11 Display ---- ##
 #################################
 function setupDisplayType() {
     if [[ "$OSTYPE" == "linux-gnu" ]]; then
