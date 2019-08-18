@@ -38,11 +38,13 @@ ENV PYTHON_DATA=${PYTHON_DATA}
 VOLUME ${PYTHON_MAIN}
 VOLUME ${PYTHON_DATA}
 
-COPY ./python/* ${PYTHON_MAIN}/
-COPY ./data/* ${PYTHON_DATA}/
-COPY ./bin $HOME/
-COPY ./docker-entrypoint.sh $HOME/
-RUN sudo chmod +x $HOME/docker-entrypoint.sh
+COPY python $HOME/python
+COPY data $HOME/data
+COPY bin $HOME/bin
+COPY docker-entrypoint.sh $HOME/
+RUN sudo chmod +x *.sh $HOME/bin/*.sh && \
+    sudo $HOME/bin/setup_venv_bash_profile.sh && \
+    sudo chmod +x $HOME/docker-entrypoint.sh
 
 WORKDIR "$HOME/data"
 ENTRYPOINT ["/home/developer/docker-entrypoint.sh"]

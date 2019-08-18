@@ -1,0 +1,5 @@
+# NLP Processing
+nltk
+networkx
+numpy
+beautifulsoup4
