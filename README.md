@@ -1,3 +1,5 @@
+[![](https://images.microbadger.com/badges/image/openkbs/text-summary-docker.svg)](https://microbadger.com/images/openkbs/text-summary-docker "Get your own image badge on microbadger.com") [![](https://images.microbadger.com/badges/version/openkbs/text-summary-docker.svg)](https://microbadger.com/images/openkbs/text-summary-docker "Get your own version badge on microbadger.com")
+
 # Text Summary Docker 
 
 # Components:
@@ -6,8 +8,31 @@
 * Python 3.6 / Python 2.7 + pip 19.1 + Python3 virtual environments (venv, virtualenv, virtualenvwrapper, mkvirtualenv, ..., etc.)
 * Node v11.15.0 + npm 6.7.0 (from NodeSource official Node Distribution)
 * Gradle 5.3
-* Spark 2.4.3 + Hadoop 2.7
+* Pre-loaded various Text Summarizier algorithms, PageRank, Bert-Text-Summarizer, Tf/IDF Work frequency, (to add more later) using virtualenv for each algorithm.
 * Other tools: git wget unzip vim python python-setuptools python-dev python-numpy 
+
+# Pre-loaded Text Summarizer algorithms
+```
+.
+├── bert-extractive-summarizer
+│   ├── bert-text-summary-pypi.py
+│   ├── data-bert-text-summary-pypi.txt
+│   ├── README.md
+│   ├── requirements.txt
+│   └── run-try-bert-text-summary-pypi.py.log
+├── simple-TFIDF
+│   ├── data-bert-text-summary-pypi.txt
+│   ├── data-wiki.txt
+│   ├── fb.txt
+│   ├── requirements.txt
+│   └── text-summarization-simple-TFIDF.py
+└── text-summary-with-PageRank
+    ├── data-bert-text-summary-pypi.txt
+    ├── README.md
+    ├── requirements.txt
+    ├── run-text-summary-with-PageRank.log
+    └── text-summary-with-PageRank.py
+```
 
 # Prepare Source Data Files
 * Each data file needs to be only one line. If multiple lines, please use the bin/strip-newline.sh utility to join all sentences into one line.
