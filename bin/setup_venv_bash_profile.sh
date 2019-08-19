@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 PROJECT_HOME=${1:-my_venv}
 
@@ -60,7 +60,7 @@ export VIRTUALENVWRAPPER_PYTHON=${PYTHON_EXE}
 export VIRTUALENVWRAPPER_VIRTUALENV=${VIRTUALENV_EXE}
 # (deprecated) export VIRTUALENVWRAPPER_VIRTUALENV_ARGS='--no-site-packages'
 source ${VIRTUALENVWRAPPER_SHELL}
-export WORKON_HOME=${WORKON_HOME:-~/Envs}
+export WORKON_HOME=${WORKON_HOME:-~/.virtualenvs}
 if [ ! -d $WORKON_HOME ]; then
     mkdir -p $WORKON_HOME
 fi

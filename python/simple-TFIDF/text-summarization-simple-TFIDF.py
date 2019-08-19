@@ -204,4 +204,7 @@ if __name__ == '__main__':
     #article_content = read_contents_web_wiki(file_or_url_string)
     
     summary_results = run_article_summary(article_content)
+    
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Summarize Text: ")
+
     print(summary_results)

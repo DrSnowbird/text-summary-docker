@@ -43,8 +43,10 @@ COPY data $HOME/data
 COPY bin $HOME/bin
 COPY docker-entrypoint.sh $HOME/
 RUN sudo chmod +x *.sh $HOME/bin/*.sh && \
-    sudo $HOME/bin/setup_venv_bash_profile.sh && \
-    sudo chmod +x $HOME/docker-entrypoint.sh
+    sudo chown -R $USER:$USER $HOME/python $HOME/data $HOME/bin $HOME/docker-entrypoint.sh
+
+RUN sudo pip3 install virtualenvwrapper
+RUN ${HOME}/bin/setup_venv_bash_profile.sh && . ${HOME}/.bashrc && ${HOME}/bin/pre-load-virtualenv.sh
 
 WORKDIR "$HOME/data"
 ENTRYPOINT ["/home/developer/docker-entrypoint.sh"]

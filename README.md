@@ -1,4 +1,4 @@
-# Text Summary Docker
+# Text Summary Docker 
 
 # Components:
 * openjdk version "1.8.0_222"
@@ -9,7 +9,7 @@
 * Spark 2.4.3 + Hadoop 2.7
 * Other tools: git wget unzip vim python python-setuptools python-dev python-numpy 
 
-# Prepare Source Data File
+# Prepare Source Data Files
 * Each data file needs to be only one line. If multiple lines, please use the bin/strip-newline.sh utility to join all sentences into one line.
 * Then, put the data file to current directory's ./data foler.
 * The summarizer main program will scan all the data files in ./data folder and generate summary output to $HOME/data-docker/text-summary-docker/workspace/ folder.
