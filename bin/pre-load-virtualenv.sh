@@ -1,6 +1,8 @@
 #!/bin/bash
 
-env
+echo "------ environment vars ------"
+env | grep -i virtual
+env | grep -i venv
 
 PYTHON_MAIN=${PYTHON_MAIN:-~/python}
 echo "PYTHON_MAIN=${PYTHON_MAIN}"
@@ -9,19 +11,25 @@ echo "PYTHON_MAIN=${PYTHON_MAIN}"
 #### ---- Customization for multiple virtual python environment ---- ####
 ####      (most recommended approach and simple to switch venv)      ####
 #########################################################################
+
 PYTHON_VERSION=3
 ##PYTHON_VERSION=3.6
 PYTHON_EXE=`which python${PYTHON_VERSION}`
 VIRTUALENV_EXE=`which virtualenv`
 VIRTUALENVWRAPPER_SHELL=`which virtualenvwrapper.sh`
 
-export VIRTUALENVWRAPPER_PYTHON=${PYTHON_EXE}
-export VIRTUALENVWRAPPER_VIRTUALENV=${VIRTUALENV_EXE}
-source ${VIRTUALENVWRAPPER_SHELL}
-export WORKON_HOME=${WORKON_HOME:-~/.virtualenvs}
+#### ---- root directory for venv setups ---- ####
+export WORKON_HOME=~/Envs
+echo "WORKON_HOME=${WORKON_HOME}"
 if [ ! -d $WORKON_HOME ]; then
     mkdir -p $WORKON_HOME
 fi
+
+export VIRTUALENVWRAPPER_PYTHON=${PYTHON_EXE}
+export VIRTUALENVWRAPPER_VIRTUALENV=${VIRTUALENV_EXE}
+
+#### ---- no need if already source ---- ####
+source ${VIRTUALENVWRAPPER_SHELL}
 
 ################################################################################
 #### ---- Pre-load PIP modules for multiple virtual python environment ---- ####

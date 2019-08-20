@@ -18,9 +18,6 @@ PYTHON_VERSION=3
 ###########################################################################
 #### ---------------------- DON'T CHANGE BELOW ----------------------- ####
 ###########################################################################
-#### ---- root directory for venv setups ---- ####
-WORKON_HOME=~/venv
-
 #### ---- Detect [python3] is installed ---- ####
 #### common location: /usr/bin/python3
 VENV_SETUP=`cat ~/.bashrc | grep -i VIRTUALENVWRAPPER_PYTHON`
@@ -61,14 +58,17 @@ fi
 #### Ref: https://virtualenvwrapper.readthedocs.io/en/latest/command_ref.html
 #### mkvirtualenv [-a project_path] [-i package] [-r requirements_file] [virtualenv options] ENVNAME
 
-export VIRTUALENVWRAPPER_PYTHON=${PYTHON_EXE}
-export VIRTUALENVWRAPPER_VIRTUALENV=${VIRTUALENV_EXE}
-# (deprecated) export VIRTUALENVWRAPPER_VIRTUALENV_ARGS='--no-site-packages'
-source ${VIRTUALENVWRAPPER_SHELL}
-export WORKON_HOME=${WORKON_HOME:-~/.virtualenvs}
+#### ---- root directory for venv setups ---- ####
+export WORKON_HOME=~/Envs
+echo "WORKON_HOME=${WORKON_HOME}"
 if [ ! -d $WORKON_HOME ]; then
     mkdir -p $WORKON_HOME
 fi
+
+export VIRTUALENVWRAPPER_PYTHON=${PYTHON_EXE}
+export VIRTUALENVWRAPPER_VIRTUALENV=${VIRTUALENV_EXE}
+
+source ${VIRTUALENVWRAPPER_SHELL}
 
 # To create & activate your default venv environment, say, "${PROJECT_HOME}"
 echo "------"

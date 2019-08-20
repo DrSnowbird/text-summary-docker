@@ -8,8 +8,6 @@ PYTHON_VERSION=3
 ###########################################################################
 #### ---------------------- DON'T CHANGE BELOW ----------------------- ####
 ###########################################################################
-#### ---- root directory for venv setups ---- ####
-WORKON_HOME=~/venv
 
 #### ---- Detect [python3] is installed ---- ####
 #### common location: /usr/bin/python3
@@ -43,7 +41,6 @@ if [ "${VIRTUALENVWRAPPER_SHELL}" = "" ]; then
     exit 1
 fi
 
-
 #### ---- Setup User's HOME profile to run virutalenvwrapper shell script ---
 
 cat <<EOF>> ~/.bashrc
@@ -56,13 +53,16 @@ cat <<EOF>> ~/.bashrc
 #### Ref: https://virtualenvwrapper.readthedocs.io/en/latest/command_ref.html
 #### mkvirtualenv [-a project_path] [-i package] [-r requirements_file] [virtualenv options] ENVNAME
 
-export VIRTUALENVWRAPPER_PYTHON=${PYTHON_EXE}
-export VIRTUALENVWRAPPER_VIRTUALENV=${VIRTUALENV_EXE}
-# (deprecated) export VIRTUALENVWRAPPER_VIRTUALENV_ARGS='--no-site-packages'
-source ${VIRTUALENVWRAPPER_SHELL}
-export WORKON_HOME=${WORKON_HOME:-~/.virtualenvs}
+#### ---- root directory for venv setups ---- ####
+export WORKON_HOME=~/Envs
+echo "WORKON_HOME=${WORKON_HOME}"
 if [ ! -d $WORKON_HOME ]; then
     mkdir -p $WORKON_HOME
 fi
+
+export VIRTUALENVWRAPPER_PYTHON=${PYTHON_EXE}
+export VIRTUALENVWRAPPER_VIRTUALENV=${VIRTUALENV_EXE}
+
+source ${VIRTUALENVWRAPPER_SHELL}
 
 EOF

@@ -8,8 +8,8 @@ WORKDIR ${HOME}
 ###################################
 #### ----   PIP modules: ----  ####
 ###################################
-COPY requirements.txt ./
-RUN sudo -H pip3 --no-cache-dir install --ignore-installed -U -r requirements.txt
+#COPY requirements.txt ./
+#RUN sudo -H pip3 --no-cache-dir install --ignore-installed -U -r requirements.txt
 
 ##################################################################################
 #### ---- Dowload NLTK Corpora stopwords.zip package to avoid networking ---- ####
@@ -45,8 +45,8 @@ COPY docker-entrypoint.sh $HOME/
 RUN sudo chmod +x *.sh $HOME/bin/*.sh && \
     sudo chown -R $USER:$USER $HOME/python $HOME/data $HOME/bin $HOME/docker-entrypoint.sh
 
-RUN sudo pip3 install virtualenvwrapper
-RUN ${HOME}/bin/setup_venv_bash_profile.sh && . ${HOME}/.bashrc && ${HOME}/bin/pre-load-virtualenv.sh
+RUN ${HOME}/bin/setup_venv_bash_profile.sh 
+RUN . ${HOME}/.bashrc && /bin/bash ${HOME}/bin/pre-load-virtualenv.sh
 
 WORKDIR "$HOME/data"
 ENTRYPOINT ["/home/developer/docker-entrypoint.sh"]

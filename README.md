@@ -8,7 +8,7 @@
 * Python 3.6 / Python 2.7 + pip 19.1 + Python3 virtual environments (venv, virtualenv, virtualenvwrapper, mkvirtualenv, ..., etc.)
 * Node v11.15.0 + npm 6.7.0 (from NodeSource official Node Distribution)
 * Gradle 5.3
-* Pre-loaded various Text Summarizier algorithms, PageRank, Bert-Text-Summarizer, Tf/IDF Work frequency, (to add more later) using virtualenv for each algorithm.
+* Pre-loaded various Text Summarizier algorithms, PageRank, Bert-Text-Summarizer, Tf/IDF approach, (to add more later) using virtualenv for each algorithm.
 * Other tools: git wget unzip vim python python-setuptools python-dev python-numpy 
 
 # Pre-loaded Text Summarizer algorithms
@@ -51,8 +51,8 @@ docker-compose up
 ### Once you are inside the container, you can try
 ```
 cd $HOME
-python3 python/main_python.py -d data/msft.txt
-python3 python/main_python.py -d data/fb.txt 
+python3 python/text-summary-with-PageRank/textpython3 python/text-summary-with-PageRank/text-summary-with-PageRank.py -d data/fb.txt
+python3 python/text-summary-with-PageRank/textpython3 python/text-summary-with-PageRank/text-summary-with-PageRank.py -d data/msft.txt 
 ```
 # Run (Batch Mode) - as command line
 ```
