@@ -55,7 +55,7 @@ cat <<EOF>> ~/.bashrc
 
 #### ---- root directory for venv setups ---- ####
 export WORKON_HOME=~/Envs
-echo "WORKON_HOME=${WORKON_HOME}"
+echo "WORKON_HOME=\${WORKON_HOME}"
 if [ ! -d $WORKON_HOME ]; then
     mkdir -p $WORKON_HOME
 fi

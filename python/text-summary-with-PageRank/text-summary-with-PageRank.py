@@ -8,19 +8,31 @@ import sys
 import argparse
 from argparse import ArgumentParser
 
+###################################
+#### ---- Arugment setup  ---- ####
+###################################
+
 parser = ArgumentParser()
-#parser.add_argument("-d", "--data", dest="dataFile", help="read data from", metavar="FILE")
+
+#### ---- data file ----
+# parser.add_argument("-d", "--data", dest="dataFile", help="read data from", metavar="FILE")
 parser.add_argument("-d", "--data", dest="dataFile", help="read data from either a file or Web URL")
+
+#### ---- Unit Test or not ----
+feature_parser = parser.add_mutually_exclusive_group(required=False)
+feature_parser.add_argument("-t", "--test", dest='unitTest', action='store_true')
+parser.set_defaults(feature=False)
 
 args = parser.parse_args()
 if args.dataFile is not None:
     print('The data file name is {}'.format(args.dataFile))
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> data file=" + args.dataFile)
 else:
-    print('*** ERROR: No data file provided! ... Abort!')
-    sys.exit()
-    
-print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> data file=" + args.dataFile)
-
+    if args.unitTest:
+        print("--- Unit Testing ----")
+    else:
+        print('*** ERROR: No data file provided! ... Abort!')
+        sys.exit()
 
 import numpy as np
 import networkx as nx
@@ -34,18 +46,61 @@ import networkx as nx
 # 4. Now you can import the data `from nltk.corpus import stopwords`
 # Also,
 # pip3 install -m nltk download stopwords
-# 
+#
 # nltk.download('stopwords')
 
 import nltk
+
 nltk.download('stopwords')
 
 from nltk.corpus import stopwords
 from nltk.cluster.util import cosine_distance
 
-#############################################
-#### ---- Read input text from file ---- ####
-#############################################
+
+####################################################
+#### ---- Read input text from URL or file ---- ####
+####################################################
+
+#### ---- 0) Read contents from either file or Web URL  ---- ####
+def read_file_or_web_contents(file_or_url_string):
+    if "http" in file_or_url_string:
+        print(">>> content source is Web HTTP/HTTPS URL: " + file_or_url_string)
+        article_content = read_contents_web_wiki(file_or_url_string)
+    else:
+        # File (assuming file if non Web URL)
+        print(">>> content source is a File: " + file_or_url_string)
+        article_content = read_article_single_or_multi_lines(file_or_url_string)
+
+    return article_content
+
+
+#### ---- 0) Read contents from Web URL  ---- ####
+def read_contents_web_wiki(url_string):
+    # fetching the content from the URL
+    # fetched_data = urllib.request.urlopen('https://en.wikipedia.org/wiki/20th_century')
+    fetched_data = urllib.request.urlopen(url_string)
+
+    article_read = fetched_data.read()
+
+    # parsing the URL content and storing in a variable
+    article_parsed = BeautifulSoup.BeautifulSoup(article_read, 'html.parser')
+
+    # returning <p> tags
+    paragraphs = article_parsed.find_all('p')
+
+    article_content = []
+
+    # looping through the paragraphs and adding them to the variable
+    print("---- preparing paragraph: \n")
+    for p in paragraphs:
+        print(p.text)
+        p_text = p.text
+        if p_text and p_text.strip():
+            article_content.extend(p_text.strip().split(". "))
+
+    print(article_content)
+    return article_content
+
 
 #### ---- Read article file with either a long line or multi-line contents
 def read_article_single_or_multi_lines(file_name):
@@ -61,35 +116,41 @@ def read_article_single_or_multi_lines(file_name):
 
     return article
 
+
 def read_article_multi_lines(file_name):
     file = open(file_name, "r")
     article = file.readlines()
-    
+
     print("------- article being read in: " + file_name)
     print(article)
 
     return article
+
 
 def read_article(file_name):
     file = open(file_name, "r")
     filedata = file.readlines()
     article = filedata[0].split(". ")
-    
+
     print("------- article being read in: " + file_name)
     print(article)
-    
+
     return article
 
-#### ---- Split sentences into tokens
+
+#### ----Sentence Similarity ---- ####
 def process_sentences(article):
     sentences = []
     for sentence in article:
         print(sentence)
         sentences.append(sentence.replace("[^a-zA-Z]", " ").split(" "))
+
+    # why pop the last sentence?
     sentences.pop()
 
     return sentences
 
+#### ----Sentence Similarity Matrix---- ####
 def sentence_similarity(sent1, sent2, stopwords=None):
     if stopwords is None:
         stopwords = []
@@ -129,16 +190,21 @@ def build_similarity_matrix(sentences, stop_words):
 
     return similarity_matrix
 
+
 ###################################################################
 #### ---- Algorithm: generate summary using Text PageRank ---- ####
 ###################################################################
-def generate_summary(file_name, top_n=5):
+def generate_summary(file_or_url_string, top_n=5):
+
     stop_words = stopwords.words('english')
     summarize_text = []
 
     # Step 1 - Read text anc split it
-    #sentences = read_article(file_name)
-    article = read_article_single_or_multi_lines(file_name)
+    # article = read_article(file_or_url_string)
+
+    article = read_file_or_web_contents(file_or_url_string)
+    # article = read_article_single_or_multi_lines(file_or_url_string)
+
     sentences = process_sentences(article)
 
     # Step 2 - Generate Similary Martix across sentences
@@ -161,9 +227,68 @@ def generate_summary(file_name, top_n=5):
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Summarize Text: ")
     print(summarize_text)
 
+
+def test_cases():
+    files=[]
+    files.append("https://en.wikipedia.org/wiki/20th_century")
+    files.append("./wiki-contents.txt")
+    files.append("./fb.txt")
+    files.append("./multiline-data.txt")
+
+    #file_or_url_string = 'https://en.wikipedia.org/wiki/20th_century'
+    #file_or_url_string = './wiki-contents.txt'
+    #file_or_url_string = './fb.txt'
+    #file_or_url_string = './multiline-data.txt'
+
+    for file_or_url_string in files:
+        print("\n\n\n######## Test with files or URL: " + file_or_url_string)
+        generate_summary(file_or_url_string, 2)
+
+
+##############################################
+#### -------------- tests --------------- ####
+##############################################
+def test_cases():
+    files = []
+    files.append("https://en.wikipedia.org/wiki/20th_century")
+    files.append("../../data/wiki-contents.txt")
+    files.append("../../data/msft.txt")
+    files.append("../../data/multiline-data.txt")
+
+    for file_or_url_string in files:
+        print("\n\n\n######## Test with files or URL: " + file_or_url_string)
+        generate_summary(file_or_url_string, 2)
+
+    # Step 5 - Offcourse, output the summarize texr
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Summarize Text: ")
+    print(summarize_text)
+    
+    return summarize_text
+
+
+##############################################
+#### -------------- tests --------------- ####
+##############################################
+def test_cases():
+    files=[]
+    files.append("https://en.wikipedia.org/wiki/20th_century")
+    files.append("../../data/wiki-contents.txt")
+    files.append("../../data/msft.txt")
+    files.append("../../data/multiline-data.txt")
+
+    for file_or_url_string in files:
+        print("\n\n\n######## Test with files or URL: " + file_or_url_string)
+        generate_summary(file_or_url_string, 2)
+        
 #############################################
 #### -------------- main --------------- ####
 #############################################
 if __name__ == '__main__':
-    # let's begin
-    generate_summary(args.dataFile, 2)
+    
+    file_or_url_string = args.dataFile
+
+    if args.unitTest:
+        test_cases()
+    else:
+        summary_results = generate_summary(file_or_url_string, 2)
+        

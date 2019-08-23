@@ -8,19 +8,32 @@ import sys
 import argparse
 from argparse import ArgumentParser
 
+###################################
+#### ---- Arugment setup  ---- ####
+###################################
+
 parser = ArgumentParser()
-#parser.add_argument("-d", "--data", dest="dataFile", help="read data from", metavar="FILE")
+
+#### ---- data file ----
+# parser.add_argument("-d", "--data", dest="dataFile", help="read data from", metavar="FILE")
 parser.add_argument("-d", "--data", dest="dataFile", help="read data from either a file or Web URL")
+
+#### ---- Unit Test or not ----
+feature_parser = parser.add_mutually_exclusive_group(required=False)
+feature_parser.add_argument("-t", "--test", dest='unitTest', action='store_true')
+parser.set_defaults(feature=False)
 
 args = parser.parse_args()
 if args.dataFile is not None:
     print('The data file name is {}'.format(args.dataFile))
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> data file=" + args.dataFile)
 else:
-    print('*** ERROR: No data file provided! ... Abort!')
-    sys.exit()
-    
-print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> data file=" + args.dataFile)
-
+    if args.unitTest:
+        print("--- Unit Testing ----")
+    else:
+        print('*** ERROR: No data file provided! ... Abort!')
+        sys.exit()
+        
 import summarizer
 from summarizer import SingleModel
 
@@ -135,8 +148,8 @@ Once the competitor could rise no higher, the spire of the Chrysler building was
 
     # Step 1 - Read text from the file
     #sentences = read_article(file_or_url_string)
-    #sentences = read_file_or_web_contents(file_or_url_string)
-    sentences = read_article_single_or_multi_lines(file_or_url_string)
+    sentences = read_file_or_web_contents(file_or_url_string)
+    #sentences = read_article_single_or_multi_lines(file_or_url_string)
     
     #model = SingleModel(greedyness=0.4)
     model = SingleModel()
@@ -146,13 +159,33 @@ Once the competitor could rise no higher, the spire of the Chrysler building was
     summarize_text = ''.join(result)
 
     # Step 5 - Now, output the summarize texr
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Summarize Text: ")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Summarized Text: ")
     print(summarize_text)
+    
+    return summarize_text
 
+##############################################
+#### -------------- tests --------------- ####
+##############################################
+def test_cases():
+    files=[]
+    files.append("https://en.wikipedia.org/wiki/20th_century")
+    files.append("../../data/wiki-contents.txt")
+    files.append("../../data/msft.txt")
+    files.append("../../data/multiline-data.txt")
+
+    for file_or_url_string in files:
+        print("\n\n\n######## Test with files or URL: " + file_or_url_string)
+        generate_summary(file_or_url_string)
+        
 #############################################
 #### -------------- main --------------- ####
 #############################################
 if __name__ == '__main__':
-    # let's begin
+    
     file_or_url_string = args.dataFile
-    generate_summary(file_or_url_string)
+
+    if args.unitTest:
+        test_cases()
+    else:
+        summary_results = generate_summary(file_or_url_string)
