@@ -17,25 +17,46 @@ parser = ArgumentParser()
 #### ---- data file ----
 # parser.add_argument("-d", "--data", dest="dataFile", help="read data from", metavar="FILE")
 parser.add_argument("-d", "--data", dest="dataFile", help="read data from either a file or Web URL")
+parser.add_argument("-o", "--out", dest="outFile", help="write summary as output to a file")
 
 #### ---- Unit Test or not ----
 feature_parser = parser.add_mutually_exclusive_group(required=False)
 feature_parser.add_argument("-t", "--test", dest='unitTest', action='store_true')
+
 parser.set_defaults(feature=False)
 
 args = parser.parse_args()
+
+#### ---- Extract dataFile value ----
+file_or_url_string = ""
 if args.dataFile is not None:
     print('The data file name is {}'.format(args.dataFile))
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> data file=" + args.dataFile)
+    file_or_url_string = args.dataFile
 else:
     if args.unitTest:
         print("--- Unit Testing ----")
     else:
         print('*** ERROR: No data file provided! ... Abort!')
         sys.exit()
-        
+
+#### ---- Extract outFile value ----
+out_file_string = "text-summary-out.txt"
+if args.outFile is not None:
+    print('The out file name is {}'.format(args.outFile))
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> out file=" + args.outFile)
+    out_file_string = args.outFile
+
+
+########################
+########################
+#### ---- main ---- ####
+########################
+########################
+
 import summarizer
 from summarizer import SingleModel
+
 
 #############################################
 #### ---- Read input text from URL  ---- ####
@@ -53,10 +74,11 @@ def read_file_or_web_contents(file_or_url_string):
 
     return article_content
 
+
 #### ---- 0) Read contents from Web URL  ---- ####
 def read_contents_web_wiki(url_string):
     # fetching the content from the URL
-    #fetched_data = urllib.request.urlopen('https://en.wikipedia.org/wiki/20th_century')
+    # fetched_data = urllib.request.urlopen('https://en.wikipedia.org/wiki/20th_century')
     fetched_data = urllib.request.urlopen(url_string)
 
     article_read = fetched_data.read()
@@ -64,7 +86,7 @@ def read_contents_web_wiki(url_string):
     # parsing the URL content and storing in a variable
     article_parsed = BeautifulSoup.BeautifulSoup(article_read, 'html.parser')
 
-    #returning <p> tags
+    # returning <p> tags
     paragraphs = article_parsed.find_all('p')
 
     article_content = ''
@@ -75,6 +97,7 @@ def read_contents_web_wiki(url_string):
 
     print(article_content)
     return article_content
+
 
 #### ---- 0) Read contents with single (long) line or multi lines from file into multi lines  ---- ####
 #### (strip out empty lines)
@@ -92,6 +115,7 @@ def read_article_single_or_multi_lines(file_name):
     print("\n<<<< END")
     return article
 
+
 #### ---- 0) Read contents from file  ---- ####
 def read_article(file_name):
     file = open(file_name, "r")
@@ -100,6 +124,8 @@ def read_article(file_name):
     print("===== contents read in: =====" + file_name)
     print(article_content)
     print("\n<<<< END")
+
+
 ################################################################################
 #### ---- Algorithm: generate summary using Bert-Extractive-Summarizer ---- ####
 ################################################################################
@@ -110,7 +136,7 @@ def read_article(file_name):
 #     reduce_option: str # It can be 'mean', 'median', or 'max'. This reduces the embedding layer for pooling.
 #     greedyness: float # number between 0 and 1. It is used for the coreference model. Anywhere from 0.35 to 0.45 seems to work well.
 # )
-# 
+#
 # model(
 #     body: str # The string body that you want to summarize
 #     ratio: float # The ratio of sentences that you want for the final summary
@@ -118,8 +144,7 @@ def read_article(file_name):
 #     max_length: int # Parameter to specify to remove sentences greater than the max length
 # )
 
-def generate_summary(file_or_url_string):
-
+def generate_summary(file_or_url_string, out_file_string):
     # ---- test data ---
     sentences = '''
 The Chrysler Building, the famous art deco New York skyscraper, will be sold for a small fraction of its previous sales price.
@@ -147,13 +172,13 @@ Once the competitor could rise no higher, the spire of the Chrysler building was
 '''
 
     # Step 1 - Read text from the file
-    #sentences = read_article(file_or_url_string)
+    # sentences = read_article(file_or_url_string)
     sentences = read_file_or_web_contents(file_or_url_string)
-    #sentences = read_article_single_or_multi_lines(file_or_url_string)
-    
-    #model = SingleModel(greedyness=0.4)
+    # sentences = read_article_single_or_multi_lines(file_or_url_string)
+
+    # model = SingleModel(greedyness=0.4)
     model = SingleModel()
-    
+
     #
     result = model(sentences, min_length=60)
     summarize_text = ''.join(result)
@@ -161,14 +186,20 @@ Once the competitor could rise no higher, the spire of the Chrysler building was
     # Step 5 - Now, output the summarize texr
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Summarized Text: ")
     print(summarize_text)
-    
+
+    # Step 6 - Output to a file
+    with open(out_file_string, 'w') as outfile:
+        for item in summarize_text:
+            outfile.write(item)
+
     return summarize_text
+
 
 ##############################################
 #### -------------- tests --------------- ####
 ##############################################
 def test_cases():
-    files=[]
+    files = []
     files.append("https://en.wikipedia.org/wiki/20th_century")
     files.append("../../data/wiki-contents.txt")
     files.append("../../data/msft.txt")
@@ -177,15 +208,15 @@ def test_cases():
     for file_or_url_string in files:
         print("\n\n\n######## Test with files or URL: " + file_or_url_string)
         generate_summary(file_or_url_string)
-        
+
+
 #############################################
 #### -------------- main --------------- ####
 #############################################
 if __name__ == '__main__':
-    
-    file_or_url_string = args.dataFile
 
     if args.unitTest:
         test_cases()
     else:
-        summary_results = generate_summary(file_or_url_string)
+        summary_results = generate_summary(file_or_url_string, out_file_string)
+

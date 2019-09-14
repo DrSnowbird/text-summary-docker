@@ -17,22 +17,41 @@ parser = ArgumentParser()
 #### ---- data file ----
 # parser.add_argument("-d", "--data", dest="dataFile", help="read data from", metavar="FILE")
 parser.add_argument("-d", "--data", dest="dataFile", help="read data from either a file or Web URL")
+parser.add_argument("-o", "--out", dest="outFile", help="write summary as output to a file")
 
 #### ---- Unit Test or not ----
 feature_parser = parser.add_mutually_exclusive_group(required=False)
 feature_parser.add_argument("-t", "--test", dest='unitTest', action='store_true')
+
 parser.set_defaults(feature=False)
 
 args = parser.parse_args()
+
+#### ---- Extract dataFile value ----
+file_or_url_string = ""
 if args.dataFile is not None:
     print('The data file name is {}'.format(args.dataFile))
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> data file=" + args.dataFile)
+    file_or_url_string = args.dataFile
 else:
     if args.unitTest:
         print("--- Unit Testing ----")
     else:
         print('*** ERROR: No data file provided! ... Abort!')
         sys.exit()
+
+#### ---- Extract outFile value ----
+out_file_string = "text-summary-out.txt"
+if args.outFile is not None:
+    print('The out file name is {}'.format(args.outFile))
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> out file=" + args.outFile)
+    out_file_string = args.outFile
+
+########################
+########################
+#### ---- main ---- ####
+########################
+########################
 
 import numpy as np
 import networkx as nx
@@ -63,11 +82,11 @@ from nltk.cluster.util import cosine_distance
 
 #### ---- 0) Read contents from either file or Web URL  ---- ####
 def read_file_or_web_contents(file_or_url_string):
-    if "http" in file_or_url_string:
+    if file_or_url_string.startswith("http"):
         print(">>> content source is Web HTTP/HTTPS URL: " + file_or_url_string)
         article_content = read_contents_web_wiki(file_or_url_string)
     else:
-        # File (assuming file if non Web URL)
+        # File (it is a regular file, i.e., non-Web URL)
         print(">>> content source is a File: " + file_or_url_string)
         article_content = read_article_single_or_multi_lines(file_or_url_string)
 
@@ -150,6 +169,7 @@ def process_sentences(article):
 
     return sentences
 
+
 #### ----Sentence Similarity Matrix---- ####
 def sentence_similarity(sent1, sent2, stopwords=None):
     if stopwords is None:
@@ -190,12 +210,12 @@ def build_similarity_matrix(sentences, stop_words):
 
     return similarity_matrix
 
+import pickle
 
 ###################################################################
 #### ---- Algorithm: generate summary using Text PageRank ---- ####
 ###################################################################
-def generate_summary(file_or_url_string, top_n=5):
-
+def generate_summary(file_or_url_string, out_file_string, top_n=5):
     stop_words = stopwords.words('english')
     summarize_text = []
 
@@ -227,18 +247,26 @@ def generate_summary(file_or_url_string, top_n=5):
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Summarize Text: ")
     print(summarize_text)
 
+    # Step 6 - Output to a file
+    with open(out_file_string, 'w') as outfile:
+        #for item in summarize_text:
+        #    outfile.write("%s\n" % item)
+        outfile.write("\n".join(str(item) for item in summarize_text))
+
+    return summarize_text
+
 
 def test_cases():
-    files=[]
+    files = []
     files.append("https://en.wikipedia.org/wiki/20th_century")
     files.append("./wiki-contents.txt")
     files.append("./fb.txt")
     files.append("./multiline-data.txt")
 
-    #file_or_url_string = 'https://en.wikipedia.org/wiki/20th_century'
-    #file_or_url_string = './wiki-contents.txt'
-    #file_or_url_string = './fb.txt'
-    #file_or_url_string = './multiline-data.txt'
+    # file_or_url_string = 'https://en.wikipedia.org/wiki/20th_century'
+    # file_or_url_string = './wiki-contents.txt'
+    # file_or_url_string = './fb.txt'
+    # file_or_url_string = './multiline-data.txt'
 
     for file_or_url_string in files:
         print("\n\n\n######## Test with files or URL: " + file_or_url_string)
@@ -257,38 +285,19 @@ def test_cases():
 
     for file_or_url_string in files:
         print("\n\n\n######## Test with files or URL: " + file_or_url_string)
-        generate_summary(file_or_url_string, 2)
-
-    # Step 5 - Offcourse, output the summarize texr
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Summarize Text: ")
-    print(summarize_text)
-    
-    return summarize_text
+        generate_summary(file_or_url_string, out_file_string, 2)
 
 
-##############################################
-#### -------------- tests --------------- ####
-##############################################
-def test_cases():
-    files=[]
-    files.append("https://en.wikipedia.org/wiki/20th_century")
-    files.append("../../data/wiki-contents.txt")
-    files.append("../../data/msft.txt")
-    files.append("../../data/multiline-data.txt")
-
-    for file_or_url_string in files:
-        print("\n\n\n######## Test with files or URL: " + file_or_url_string)
-        generate_summary(file_or_url_string, 2)
-        
 #############################################
 #### -------------- main --------------- ####
 #############################################
 if __name__ == '__main__':
-    
-    file_or_url_string = args.dataFile
+
+    # file_or_url_string = args.dataFile
+    # out_file_string = args.outFile
 
     if args.unitTest:
         test_cases()
     else:
-        summary_results = generate_summary(file_or_url_string, 2)
-        
+        summary_results = generate_summary(file_or_url_string, out_file_string, 2)
+

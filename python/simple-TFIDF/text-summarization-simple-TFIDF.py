@@ -20,22 +20,49 @@ parser = ArgumentParser()
 #### ---- data file ----
 # parser.add_argument("-d", "--data", dest="dataFile", help="read data from", metavar="FILE")
 parser.add_argument("-d", "--data", dest="dataFile", help="read data from either a file or Web URL")
+parser.add_argument("-o", "--out", dest="outFile", help="write summary as output to a file")
+parser.add_argument("-a", "--alpha", dest="alpha", help="threshold alpha (multiplier), default 1.15")
 
 #### ---- Unit Test or not ----
 feature_parser = parser.add_mutually_exclusive_group(required=False)
 feature_parser.add_argument("-t", "--test", dest='unitTest', action='store_true')
+
 parser.set_defaults(feature=False)
 
 args = parser.parse_args()
+
+#### ---- Extract dataFile value ----
+file_or_url_string = ""
 if args.dataFile is not None:
     print('The data file name is {}'.format(args.dataFile))
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> data file=" + args.dataFile)
+    file_or_url_string = args.dataFile
 else:
     if args.unitTest:
         print("--- Unit Testing ----")
     else:
         print('*** ERROR: No data file provided! ... Abort!')
         sys.exit()
+
+#### ---- Extract outFile value ----
+out_file_string = "text-summary-out.txt"
+if args.outFile is not None:
+    print('The out file name is {}'.format(args.outFile))
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> out file=" + args.outFile)
+    out_file_string = args.outFile
+
+#### ---- Extract alpha value ----
+alpha = 1.15
+if args.alpha is not None:
+    print('The alpha value is {}'.format(args.alpha))
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> alpha=" + args.alpha)
+    alpha = args.alpha
+
+########################
+########################
+#### ---- main ---- ####
+########################
+########################
 
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -111,7 +138,7 @@ def read_article_single_or_multi_lines(file_name):
 #### ---- 0.) Conver Strings to a String---- ####
 #################################################
 def convert_array_string_to_one_string(article_contents):
-    text_string=''
+    text_string = ''
     for line in article_contents:
         text_string = text_string + " " + line
 
@@ -120,11 +147,11 @@ def convert_array_string_to_one_string(article_contents):
 
     return text_string
 
+
 #########################################
 #### ---- 1.) Dictionary Table  ---- ####
 #########################################
 def create_dictionary_table(text_string) -> dict:
-
     # removing stop words
     stop_words = set(stopwords.words("english"))
 
@@ -146,13 +173,13 @@ def create_dictionary_table(text_string) -> dict:
 
     return frequency_table
 
+
 #########################################
 #### ---- 2.) Sentecnes Scores  ---- ####
 #########################################
 
 
 def calculate_sentence_scores(sentences, frequency_table) -> dict:
-
     # algorithm for scoring a sentence by its words
     sentence_weight = dict()
 
@@ -171,13 +198,13 @@ def calculate_sentence_scores(sentences, frequency_table) -> dict:
 
     return sentence_weight
 
+
 ########################################
 #### ---- 3.) Average Weights  ---- ####
 ########################################
 
 
 def calculate_average_score(sentence_weight) -> int:
-
     # calculating the average score for the sentences
     sum_values = 0
     for entry in sentence_weight:
@@ -187,6 +214,7 @@ def calculate_average_score(sentence_weight) -> int:
     average_score = (sum_values / len(sentence_weight))
 
     return average_score
+
 
 ################################
 #### ---- 4.) Summary ---- #####
@@ -204,12 +232,12 @@ def get_article_summary(sentences, sentence_weight, threshold):
 
     return article_summary
 
+
 #########################################
 #### ---- 5.) Dictionary Table  ---- ####
 #########################################
 
-def generate_summary(file_or_url_string):
-
+def generate_summary(file_or_url_string, out_file_string, alpha):
     sentences = read_file_or_web_contents(file_or_url_string)
     article = convert_array_string_to_one_string(sentences)
 
@@ -217,30 +245,38 @@ def generate_summary(file_or_url_string):
     frequency_table = create_dictionary_table(article)
 
     # tokenizing the sentences
-#    sentences = sent_tokenize(article)
+    #    sentences = sent_tokenize(article)
 
     # algorithm for scoring a sentence by its words
     sentence_scores = calculate_sentence_scores(sentences, frequency_table)
 
     # getting the threshold
     threshold = calculate_average_score(sentence_scores)
+    print("threshold=" + str(threshold))
+
 
     # producing the summary
-    article_summary = get_article_summary(
-        sentences, sentence_scores, 1.5 * threshold)
+    summarize_text = get_article_summary(
+        sentences, sentence_scores, float(alpha) * float(threshold))
 
     # Step 5 - Now, output the summarize texr
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Summarized Text: ")
-    print(article_summary)
+    print(summarize_text)
 
-    return article_summary
+    # Step 6 - Output to a file
+    with open(out_file_string, 'w') as outfile:
+        for item in summarize_text:
+            outfile.write(item)
+            #outfile.write("%s" % item)
+
+    return summarize_text
 
 
 ##############################################
 #### -------------- tests --------------- ####
 ##############################################
 def test_cases():
-    files=[]
+    files = []
     files.append("https://en.wikipedia.org/wiki/20th_century")
     files.append("../../data/wiki-contents.txt")
     files.append("../../data/msft.txt")
@@ -249,16 +285,15 @@ def test_cases():
     for file_or_url_string in files:
         print("\n\n\n######## Test with files or URL: " + file_or_url_string)
         generate_summary(file_or_url_string)
-        
+
+
 #############################################
 #### -------------- main --------------- ####
 #############################################
 if __name__ == '__main__':
-    
-    file_or_url_string = args.dataFile
 
     if args.unitTest:
         test_cases()
     else:
-        summary_results = generate_summary(file_or_url_string)
-        
+        summary_results = generate_summary(file_or_url_string, out_file_string, alpha)
+
